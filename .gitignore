@@ -1,0 +1,8 @@
+# Swift Package Manager build artifacts
+.build/
+
+# Assembled app bundle (produced by build.sh)
+DeskClock.app/
+
+# macOS
+.DS_Store
