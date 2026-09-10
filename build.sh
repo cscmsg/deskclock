@@ -7,7 +7,7 @@ set -euo pipefail
 APP_NAME="DeskClock"
 BUNDLE_ID="com.cscmsg.deskclock"
 SHORT_VERSION="1.2.0"   # CFBundleShortVersionString (marketing version)
-BUILD_VERSION="3"       # CFBundleVersion (build number)
+BUILD_VERSION="4"       # CFBundleVersion (build number)
 # ----------------------------------------------------------------------------
 
 usage() {
@@ -57,6 +57,16 @@ mkdir -p "${MACOS_DIR}" "${RES_DIR}"
 
 cp "${BIN_PATH}/${APP_NAME}" "${MACOS_DIR}/${APP_NAME}"
 
+# Build the icon if it is missing rather than shipping without one: with no icns
+# the bundle silently falls back to the generic app icon.
+if [ ! -f Assets/AppIcon.icns ]; then
+  echo "==> Drawing the app icon…"
+  swift scripts/make_icon.swift Assets/AppIcon.iconset
+  iconutil -c icns Assets/AppIcon.iconset -o Assets/AppIcon.icns
+  rm -rf Assets/AppIcon.iconset
+fi
+cp Assets/AppIcon.icns "${RES_DIR}/AppIcon.icns"
+
 cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -72,6 +82,8 @@ cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
     <string>${APP_NAME}</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleShortVersionString</key>

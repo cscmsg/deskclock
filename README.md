@@ -38,7 +38,8 @@ This builds a universal binary (Apple silicon and Intel) with `swift build`,
 assembles `DeskClock.app`, and writes its `Info.plist`. It signs the bundle with
 your Developer ID if you have exactly one, or with the one whose SHA-1 you put in
 a `.signing-identity` file; otherwise it ad-hoc signs, which is fine for running
-it on your own Mac.
+it on your own Mac. The app icon is `Assets/AppIcon.icns`, drawn by
+`scripts/make_icon.swift`; delete the icns and `./build.sh` draws it again.
 
 `./build.sh --notarize` also notarizes the app with Apple, staples the ticket,
 checks that Gatekeeper accepts it, and writes `dist/DeskClock-<version>.zip`,

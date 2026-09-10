@@ -5,6 +5,9 @@
 DeskClock.app/
 dist/
 
+# Intermediate output of scripts/make_icon.swift (the .icns is tracked)
+Assets/AppIcon.iconset/
+
 # The maintainer's pinned signing certificate (SHA-1). Machine-specific, and
 # not something to publish -- see build.sh.
 .signing-identity
