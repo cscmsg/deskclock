@@ -1,8 +1,13 @@
 # Swift Package Manager build artifacts
 .build/
 
-# Assembled app bundle (produced by build.sh)
+# Assembled app bundle and notarized release zip (produced by build.sh)
 DeskClock.app/
+dist/
+
+# The maintainer's pinned signing certificate (SHA-1). Machine-specific, and
+# not something to publish -- see build.sh.
+.signing-identity
 
 # macOS
 .DS_Store
