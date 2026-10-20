@@ -6,8 +6,8 @@ set -euo pipefail
 # ----------------------------------------------------------------------------
 APP_NAME="DeskClock"
 BUNDLE_ID="com.cscmsg.deskclock"
-SHORT_VERSION="1.2.0"   # CFBundleShortVersionString (marketing version)
-BUILD_VERSION="4"       # CFBundleVersion (build number)
+SHORT_VERSION="1.2.1"   # CFBundleShortVersionString (marketing version)
+BUILD_VERSION="5"       # CFBundleVersion (build number)
 # ----------------------------------------------------------------------------
 
 usage() {
