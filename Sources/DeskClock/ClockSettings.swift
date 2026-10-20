@@ -63,8 +63,8 @@ final class ClockSettings: ObservableObject {
 
     // Transient (not persisted). False while the clock can't actually be seen —
     // display asleep, screen saver up, or the window fully occluded. The face
-    // watches this to drop its periodic redraw to a single static frame so it
-    // stops burning CPU rendering frames nobody sees. Driven by the AppDelegate.
+    // watches this to stop its tick timer and sweep and hold a single static
+    // frame, so it does no work for a clock nobody sees. Driven by the AppDelegate.
     @Published var renderActive: Bool = true
 
     // Window position — not @Published (it doesn't affect the drawn face).

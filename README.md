@@ -2,8 +2,9 @@
 
 A tiny, self-contained native macOS app that floats a round analog clock face
 above all your other windows. It has no Dock icon and no app menu — it runs as a
-menu-bar accessory. The face is drawn with SwiftUI (`Canvas` + `TimelineView`);
-window behavior (borderless, transparent, always-on-top, across Spaces and over
+menu-bar accessory. The face is drawn with Core Animation layers and the
+settings popover with SwiftUI; window behavior (borderless, transparent,
+always-on-top, across Spaces and over
 fullscreen apps) is handled with AppKit. It is dependency-free, targets macOS 14+,
 and builds from the command line with Swift Package Manager — no Xcode project.
 
@@ -16,17 +17,29 @@ Download the notarized build from [Releases](../../releases), move it to
 
 Or build it yourself — see [Build](#build) below. macOS 14 (Sonoma) or later.
 
-## It stops drawing when you can't see it
+## What it costs to run
 
-A `.periodic` `TimelineView` keeps firing while its view is off-screen — unlike
-`.animation`, it does not pause on occlusion. For a borderless always-on-top
-overlay that means redrawing the face up to ~30 fps behind the screen saver or a
-sleeping display, forever.
+Very little, and it stays that way however long it runs. The dial (disc, rim,
+ticks, numerals) is drawn once, and again only when you change its size, theme,
+numerals or light/dark. Each second the app rotates three hand layers and does
+nothing else. The sweeping second hand is a Core Animation rotation capped at
+30 fps, which the system's render server animates without waking the app between
+frames.
 
-DeskClock tracks the three ways the clock goes unseen — window occlusion, screens
-asleep, screen saver up — and drops to a single static frame until it is visible
-again. Worth knowing if you are the kind of person who checks what your menu-bar
-apps cost you.
+It also stops when you can't see it. DeskClock tracks the three ways the clock
+goes unseen (window fully covered, screens asleep, screen saver up) and holds a
+single static frame until it is visible again.
+
+### Why the face isn't a SwiftUI `Canvas`
+
+Through version 1.2.0 the face was a SwiftUI `Canvas` redrawn by a `TimelineView`
+once a second. On Tahoe (version 26) that leaks: every redraw of a non-trivial `Canvas`
+leaves a dispatch timer, its block and two small allocations behind inside
+SwiftUI's renderer: about one timer per second the clock is on screen, and more
+with the sweeping hand. After a week or two of uptime the
+app held hundreds of thousands of them and several hundred MB, and its CPU use
+had crept up with them. `.drawingGroup()` and `Canvas(rendersAsynchronously:)`
+leak the same way. A face that never re-renders per tick never touches that path.
 
 ## Build
 
@@ -89,7 +102,7 @@ fresh build.
 | `Sources/DeskClock/main.swift` | App bootstrap, `AppDelegate`, window-side settings + login item |
 | `Sources/DeskClock/ClockSettings.swift` | Observable settings model (persistence) + color themes |
 | `Sources/DeskClock/ClockWindow.swift` | Borderless transparent always-on-top `NSWindow`; size definitions |
-| `Sources/DeskClock/ClockView.swift` | SwiftUI `Canvas` clock face (sweep, numerals, themes) |
+| `Sources/DeskClock/ClockView.swift` | Clock face as Core Animation layers: dial drawn once, hands rotated (sweep, numerals, themes) |
 | `Sources/DeskClock/SettingsPanel.swift` | SwiftUI settings popover (hover-preview size/theme, live toggles) |
 | `Sources/DeskClock/StatusItem.swift` | Menu-bar `NSStatusItem` + settings popover host |
 | `build.sh` | Build, bundle, sign |
