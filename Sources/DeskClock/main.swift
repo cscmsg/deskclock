@@ -1,6 +1,5 @@
 import AppKit
 import ServiceManagement
-import SwiftUI
 
 // MARK: - App identity
 //
@@ -25,7 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         window = ClockWindow(size: settings.size.points)
         window.delegate = self
-        window.contentView = NSHostingView(rootView: ClockView(settings: settings))
+        window.contentView = ClockView(settings: settings)
 
         applyOpacity()
         applyFloatsOverFullscreen()
@@ -111,12 +110,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     // MARK: - Render gating
     //
-    // A `.periodic` TimelineView keeps firing while its view is off-screen
-    // (unlike `.animation`, it doesn't pause on occlusion). For a borderless
-    // floating overlay that means the face would redraw — up to ~30 fps with the
-    // sweeping hand — behind the screen saver or a sleeping display, around the
-    // clock. We track the three ways the clock goes unseen and collapse them into
-    // settings.renderActive, which the face reads to fall back to a static draw.
+    // The face's one-second timer (and the sweeping second hand's animation)
+    // would keep running while the clock can't be seen: behind the screen saver
+    // or a sleeping display, or fully covered, around the clock. We track the
+    // three ways the clock goes unseen and collapse them into
+    // settings.renderActive, which the face reads to stop and hold a static frame.
     private var windowVisible = true
     private var screensAwake = true
     private var screenSaverIdle = true
